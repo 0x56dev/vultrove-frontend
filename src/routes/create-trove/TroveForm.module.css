@@ -1,0 +1,129 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin-top: var(--space-6);
+}
+
+.fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-4) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fieldset legend {
+  padding: 0 var(--space-2);
+  font-weight: 600;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field label {
+  font-size: 0.9rem;
+}
+
+.fieldHint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.fieldError {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.85rem;
+}
+
+.infoNote {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--color-accent);
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.modeOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.modeOption {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  cursor: pointer;
+  font-weight: 400;
+}
+
+.modeOption:has(input:checked) {
+  border-color: var(--color-accent);
+  background: var(--color-bg-elevated);
+}
+
+.modeOption:has(input:focus-visible) {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.modeOption input {
+  margin-top: 0.2em;
+  flex-shrink: 0;
+}
+
+.modeOptionTitle {
+  display: block;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.modeOptionHint {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.linkList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.linkRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.actions {
+  display: flex;
+}
+
+.formStatus {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.9rem;
+}

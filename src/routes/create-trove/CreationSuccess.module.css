@@ -1,0 +1,45 @@
+.warning {
+  margin: var(--space-6) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+}
+
+.warning p {
+  margin: 0;
+}
+
+.warning p + p {
+  margin-top: var(--space-2);
+}
+
+.urlBlock {
+  margin: var(--space-6) 0;
+}
+
+.urlRow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
+.urlInput {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.copyStatus {
+  margin: var(--space-2) 0 0;
+  font-size: 0.85rem;
+  color: var(--color-accent-green);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+}

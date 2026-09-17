@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="vultrove — bundle links into one shareable trove. No account required."
+    />
+    <!--
+      The production Content-Security-Policy <meta> tag is injected here
+      by vite.config.ts's csp-meta-plugin, build-only — see that plugin's
+      doc comment for why it must not run for `vite dev` (Vite's dev
+      server injects its own inline React-Refresh bootstrap script, which
+      a strict `script-src` with no 'unsafe-inline'/nonce would break).
+    -->
+    <title>vultrove</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
