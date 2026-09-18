@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { createStandardTrove } from '../api/standard-troves'
 import { createPrivateTrove } from '../api/private-troves'
+import { sendTelemetryEvent } from '../api/telemetry'
 import { ApiError } from '../api/client'
 import {
   buildPublicTroveUrl,
@@ -156,6 +157,13 @@ export function CreateTrovePage() {
     submissionInFlight.current = true
     setSubmitting(true)
     setSubmitError(null)
+    // Fires exactly once per actual submit attempt (never on page load),
+    // regardless of whether creation itself goes on to succeed or fail.
+    // Best-effort by contract (docs/TELEMETRY.md): a failure here must
+    // never surface to the user or affect trove creation, so its
+    // rejection is swallowed right here rather than propagating into the
+    // try/catch below.
+    sendTelemetryEvent('create_submit_clicked').catch(() => {})
     try {
       if (values.mode === 'private') {
         await handleSubmitPrivate(values)

@@ -18,6 +18,13 @@ export function Layout() {
       <main id="main-content">
         <Outlet />
       </main>
+      <footer className={styles.footer}>
+        <p>
+          Privacy-friendly telemetry: vultrove uses limited first-party
+          aggregate telemetry to understand whether features are working and
+          being used. <Link to="/privacy-telemetry">Learn more</Link>
+        </p>
+      </footer>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { CreateTrovePage } from './CreateTrovePage'
 import { ApiError } from '../api/client'
 import * as standardTroves from '../api/standard-troves'
 import * as privateTroves from '../api/private-troves'
+import * as telemetry from '../api/telemetry'
 
 vi.mock('../api/standard-troves', () => ({
   createStandardTrove: vi.fn(),
@@ -14,8 +15,13 @@ vi.mock('../api/private-troves', () => ({
   createPrivateTrove: vi.fn(),
 }))
 
+vi.mock('../api/telemetry', () => ({
+  sendTelemetryEvent: vi.fn(),
+}))
+
 const mockedCreate = vi.mocked(standardTroves.createStandardTrove)
 const mockedCreatePrivate = vi.mocked(privateTroves.createPrivateTrove)
+const mockedSendTelemetryEvent = vi.mocked(telemetry.sendTelemetryEvent)
 
 function renderPage() {
   return render(
@@ -37,6 +43,8 @@ function fillMinimalValidForm() {
 beforeEach(() => {
   mockedCreate.mockReset()
   mockedCreatePrivate.mockReset()
+  mockedSendTelemetryEvent.mockReset()
+  mockedSendTelemetryEvent.mockResolvedValue(undefined)
 })
 
 describe('CreateTrovePage', () => {
@@ -262,6 +270,60 @@ describe('CreateTrovePage', () => {
     fillMinimalValidForm()
     fireEvent.click(screen.getByRole('button', { name: 'Create trove' }))
     await waitFor(() => expect(mockedCreate).toHaveBeenCalledTimes(2))
+  })
+
+  describe('create_submit_clicked telemetry', () => {
+    it('does not send telemetry merely from rendering the create page', () => {
+      renderPage()
+      expect(mockedSendTelemetryEvent).not.toHaveBeenCalled()
+    })
+
+    it('sends exactly one create_submit_clicked event, with no other payload, when the form is actually submitted', async () => {
+      mockedCreate.mockResolvedValue({
+        troveId: 't1',
+        managementId: 'm1',
+        mode: 'standard',
+        expiresAt: null,
+      })
+      renderPage()
+      fillMinimalValidForm()
+      fireEvent.click(screen.getByRole('button', { name: 'Create trove' }))
+
+      await waitFor(() =>
+        expect(mockedSendTelemetryEvent).toHaveBeenCalledTimes(1),
+      )
+      expect(mockedSendTelemetryEvent).toHaveBeenCalledWith(
+        'create_submit_clicked',
+      )
+      // Only ever the fixed event-name argument — no form field value,
+      // password, or identifier of any kind is ever passed alongside it.
+      expect(mockedSendTelemetryEvent.mock.calls[0]).toEqual([
+        'create_submit_clicked',
+      ])
+    })
+
+    it('still creates the trove successfully when the telemetry call fails', async () => {
+      mockedSendTelemetryEvent.mockRejectedValue(new Error('network down'))
+      mockedCreate.mockResolvedValue({
+        troveId: 't1',
+        managementId: 'm1',
+        mode: 'standard',
+        expiresAt: null,
+      })
+      renderPage()
+      fillMinimalValidForm()
+      fireEvent.click(screen.getByRole('button', { name: 'Create trove' }))
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole('heading', { name: /trove is ready/i }),
+        ).toBeInTheDocument(),
+      )
+      // The telemetry failure is invisible to the user — no error surfaces
+      // from it specifically (the only alert on screen is the unrelated
+      // management-link warning already covered by another test above).
+      expect(screen.queryByText(/network down/i)).not.toBeInTheDocument()
+    })
   })
 
   describe('Private trove creation without Web Crypto (e.g. an insecure-context LAN dev origin)', () => {

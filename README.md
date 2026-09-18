@@ -15,6 +15,7 @@ Currently implemented functionality:
 - **Private troves** — an end-to-end-encrypted trove: the content is encrypted entirely in the browser (Web Crypto + an Argon2id WASM implementation for password-based key derivation) before it ever leaves the client. The decryption key lives only in the URL fragment, which browsers never send to a server.
 - **View a trove** — a public read view for a shared trove link, including client-side decryption for private troves.
 - **Manage a trove** — edit or delete a trove using its management link/secret.
+- **Privacy-friendly telemetry** — submitting the Create Trove form sends one best-effort, first-party `create_submit_clicked` event (see the in-app "Privacy-friendly telemetry" footer link / `/privacy-telemetry`). No cookies, no persistent visitor ID, no fingerprinting, no third-party analytics — see `src/api/telemetry.ts`.
 
 Client-side cryptography (id generation, the private-trove envelope format, the fragment-secret encoding, and the Argon2id key-derivation wrapper) lives under `src/crypto/`. Everything there is designed to run entirely in the browser and ships in the browser bundle.
 

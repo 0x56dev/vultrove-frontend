@@ -17,3 +17,21 @@
 .header {
   border-bottom: 1px solid var(--color-border);
 }
+
+.footer {
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--space-16);
+  padding: var(--space-4);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.footer p {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+
+.footer a {
+  color: inherit;
+  text-decoration: underline;
+}

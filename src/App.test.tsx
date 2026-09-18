@@ -59,4 +59,34 @@ describe('routing', () => {
       screen.getByRole('heading', { level: 1, name: 'Page not found' }),
     ).toBeInTheDocument()
   })
+
+  it('routes /privacy-telemetry to the telemetry FAQ page', () => {
+    renderAt('/privacy-telemetry')
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'Privacy-friendly telemetry',
+      }),
+    ).toBeInTheDocument()
+  })
+})
+
+describe('footer disclosure', () => {
+  it('shows the telemetry disclosure with a link to the FAQ page, on every page', () => {
+    renderAt('/')
+    expect(screen.getByText(/privacy-friendly telemetry/i)).toBeInTheDocument()
+    const link = screen.getByRole('link', { name: 'Learn more' })
+    expect(link).toHaveAttribute('href', '/privacy-telemetry')
+  })
+
+  it('navigates to the FAQ page when the footer link is activated', () => {
+    renderAt('/')
+    fireEvent.click(screen.getByRole('link', { name: 'Learn more' }))
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'Privacy-friendly telemetry',
+      }),
+    ).toBeInTheDocument()
+  })
 })

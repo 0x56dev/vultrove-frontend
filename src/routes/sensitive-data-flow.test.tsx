@@ -48,12 +48,28 @@ function installFetchMock(
         body: typeof init?.body === 'string' ? init.body : undefined,
       }
       captured.push(req)
+      // Submitting the create form also fires a best-effort
+      // create_submit_clicked telemetry request (CreateTrovePage.tsx) —
+      // this file deliberately doesn't mock ../api/*, so that real
+      // request reaches this same fetch spy. Answer it directly rather
+      // than routing it through each test's own `respond` callback,
+      // which only knows about the trove create/view/manage shapes.
+      if (url === '/api/v1/telemetry/events') {
+        return new Response(null, { status: 204 })
+      }
       const { status, body } = respond(req)
       return new Response(status === 204 ? null : JSON.stringify(body), {
         status,
         headers: { 'Content-Type': 'application/json' },
       })
     })
+}
+
+/** The trove create/view/manage request, excluding the incidental
+ * create_submit_clicked telemetry request every create-form submit also
+ * fires (see installFetchMock above). */
+function capturedProductRequests(): CapturedRequest[] {
+  return captured.filter((req) => req.url !== '/api/v1/telemetry/events')
 }
 
 afterEach(() => {
@@ -111,22 +127,24 @@ describe('sensitive data flow: Private trove creation', () => {
     )
 
     // Exactly one create request was made (no retry needed — the mocked
-    // server never returns id_conflict).
-    expect(fetchSpy).toHaveBeenCalledTimes(1)
-    expect(captured).toHaveLength(1)
+    // server never returns id_conflict) — plus one incidental
+    // create_submit_clicked telemetry request (excluded below).
+    const productRequests = capturedProductRequests()
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
+    expect(productRequests).toHaveLength(1)
 
     const shareUrl = screen.getByLabelText('Share link') as HTMLInputElement
     const fragment = shareUrl.value.split('#')[1]
     expect(fragment).toMatch(/^v1\./)
 
-    const haystack = haystackOf(captured[0]!)
+    const haystack = haystackOf(productRequests[0]!)
     expect(haystack).not.toContain('Top secret title')
     expect(haystack).not.toContain('my-super-secret-encryption-password')
     expect(haystack).not.toContain(fragment)
 
     // The create request's body is a discriminated-union Private shape
     // with an opaque envelope — never a plaintext content field.
-    const body = JSON.parse(captured[0]!.body ?? '{}') as Record<
+    const body = JSON.parse(productRequests[0]!.body ?? '{}') as Record<
       string,
       unknown
     >
@@ -171,7 +189,7 @@ describe('sensitive data flow: Private trove creation', () => {
     const managementSecret = managementUrl.value.split('#')[1]!
     expect(managementSecret.length).toBeGreaterThan(0)
 
-    const req = captured[0]!
+    const req = capturedProductRequests()[0]!
     expect(req.headers.Authorization).toBe(`Bearer ${managementSecret}`)
     expect(req.url).not.toContain(managementSecret)
     expect(req.body ?? '').not.toContain(managementSecret)
