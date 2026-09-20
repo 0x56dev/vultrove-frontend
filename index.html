@@ -4,10 +4,6 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="vultrove — bundle links into one shareable trove. No account required."
-    />
     <!--
       The production Content-Security-Policy <meta> tag is injected here
       by vite.config.ts's csp-meta-plugin, build-only — see that plugin's
@@ -15,7 +11,23 @@
       server injects its own inline React-Refresh bootstrap script, which
       a strict `script-src` with no 'unsafe-inline'/nonce would break).
     -->
+    <!-- vultrove-route-metadata:start -->
+    <meta
+      name="description"
+      content="vultrove — bundle links into one shareable trove. No account required."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://vultrove.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="vultrove" />
+    <meta property="og:title" content="vultrove" />
+    <meta
+      property="og:description"
+      content="vultrove — bundle links into one shareable trove. No account required."
+    />
+    <meta property="og:url" content="https://vultrove.com/" />
     <title>vultrove</title>
+    <!-- vultrove-route-metadata:end -->
   </head>
   <body>
     <div id="root"></div>

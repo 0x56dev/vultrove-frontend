@@ -1,7 +1,14 @@
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import type { Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, configDefaults } from 'vitest/config'
 import { resolveDevApiTarget } from './vite.dev-proxy.ts'
+import {
+  NOINDEX_ROBOTS_DIRECTIVE,
+  canonicalUrl,
+  getRouteMetadata,
+} from './src/indexing/metadata.ts'
 
 /**
  * Strict production CSP (Stage 3 task requirement), scoped to exactly
@@ -66,9 +73,151 @@ function cspMetaPlugin(): Plugin {
   }
 }
 
+const ROUTE_METADATA_PATTERN =
+  /<!-- vultrove-route-metadata:start -->[\s\S]*?<!-- vultrove-route-metadata:end -->/
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+}
+
+function routeMetadataMarkup(pathname: string): string {
+  const metadata = getRouteMetadata(pathname)
+  const canonical = canonicalUrl(metadata)
+  const tags = ['<!-- vultrove-route-metadata:start -->']
+
+  if (metadata.description) {
+    tags.push(
+      `<meta name="description" content="${escapeHtml(metadata.description)}" />`,
+    )
+  }
+  tags.push(`<meta name="robots" content="${escapeHtml(metadata.robots)}" />`)
+  if (canonical) {
+    tags.push(`<link rel="canonical" href="${escapeHtml(canonical)}" />`)
+  }
+  if (metadata.openGraph && metadata.description && canonical) {
+    tags.push(
+      '<meta property="og:type" content="website" />',
+      '<meta property="og:site_name" content="vultrove" />',
+      `<meta property="og:title" content="${escapeHtml(metadata.title)}" />`,
+      `<meta property="og:description" content="${escapeHtml(metadata.description)}" />`,
+      `<meta property="og:url" content="${escapeHtml(canonical)}" />`,
+    )
+  }
+  tags.push(
+    `<title>${escapeHtml(metadata.title)}</title>`,
+    '<!-- vultrove-route-metadata:end -->',
+  )
+  return tags.join('\n    ')
+}
+
+/**
+ * Emits route-specific HTML shells, not rendered page content. They give the
+ * two non-root public routes correct metadata in the initial response and
+ * provide a noindex shell for all dynamic/private and 404 routes. The private
+ * deployment config must map requests to these files; see docs/INDEXING.md.
+ */
+function indexingShellsPlugin(): Plugin {
+  let outDir: string
+
+  return {
+    name: 'vultrove-indexing-shells',
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir)
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use((request, response, next) => {
+        const requestUrl = new URL(
+          request.url ?? '/',
+          'http://vultrove-preview.invalid',
+        )
+        const { pathname } = requestUrl
+
+        if (pathname === '/robots.txt') {
+          response.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          next()
+          return
+        }
+        if (pathname === '/sitemap.xml') {
+          response.setHeader('Content-Type', 'application/xml; charset=utf-8')
+          next()
+          return
+        }
+        if (pathname === '/create' || pathname === '/create/') {
+          request.url = '/_indexing/create.html'
+          next()
+          return
+        }
+        if (
+          pathname === '/privacy-telemetry' ||
+          pathname === '/privacy-telemetry/'
+        ) {
+          request.url = '/_indexing/privacy-telemetry.html'
+          next()
+          return
+        }
+        if (/^\/(?:c|m)\/[^/]+\/?$/.test(pathname)) {
+          request.url = '/_indexing/noindex.html'
+          response.setHeader('X-Robots-Tag', NOINDEX_ROBOTS_DIRECTIVE)
+          next()
+          return
+        }
+
+        const isKnownStaticRequest =
+          pathname === '/' ||
+          pathname === '/favicon.svg' ||
+          pathname.startsWith('/assets/') ||
+          pathname.startsWith('/_indexing/') ||
+          pathname.startsWith('/api/')
+        if (isKnownStaticRequest) {
+          next()
+          return
+        }
+
+        response.statusCode = 404
+        response.setHeader('X-Robots-Tag', NOINDEX_ROBOTS_DIRECTIVE)
+        response.setHeader('Content-Type', 'text/html; charset=utf-8')
+        void readFile(resolve(outDir, '_indexing/noindex.html'))
+          .then((body) => response.end(body))
+          .catch(next)
+      })
+    },
+    async closeBundle() {
+      const source = await readFile(resolve(outDir, 'index.html'), 'utf8')
+      if (!ROUTE_METADATA_PATTERN.test(source)) {
+        throw new Error(
+          'The route metadata markers were not found in index.html',
+        )
+      }
+
+      const shells = {
+        '_indexing/create.html': '/create',
+        '_indexing/privacy-telemetry.html': '/privacy-telemetry',
+        '_indexing/noindex.html': '/__not-an-indexable-route__',
+      } as const
+
+      await mkdir(resolve(outDir, '_indexing'), { recursive: true })
+      await Promise.all(
+        Object.entries(shells).map(([fileName, pathname]) =>
+          writeFile(
+            resolve(outDir, fileName),
+            source.replace(
+              ROUTE_METADATA_PATTERN,
+              routeMetadataMarkup(pathname),
+            ),
+          ),
+        ),
+      )
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), cspMetaPlugin()],
+  plugins: [react(), cspMetaPlugin(), indexingShellsPlugin()],
   server: {
     // Local-dev-only same-origin proxy (docs/RUNTIME_ARCHITECTURE.md §5) —
     // see vite.dev-proxy.ts for the target-resolution/validation logic and
