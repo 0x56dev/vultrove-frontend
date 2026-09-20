@@ -1,3 +1,4 @@
+import { NoticePage } from '../components/NoticePage'
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { updateStandardTrove, deleteTrove } from '../api/standard-troves'
@@ -240,19 +241,19 @@ function ManagementContent({
 
   if (state.status === 'invalid-link') {
     return (
-      <div className="page">
+      <NoticePage>
         <h1>Invalid management link</h1>
         <p role="status">{INVALID_LINK_MESSAGE}</p>
-      </div>
+      </NoticePage>
     )
   }
 
   if (state.status === 'error') {
     return (
-      <div className="page">
+      <NoticePage>
         <h1>Something went wrong</h1>
         <p role="alert">{state.message}</p>
-      </div>
+      </NoticePage>
     )
   }
 
