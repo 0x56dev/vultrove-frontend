@@ -1,3 +1,4 @@
+import { NoticePage } from '../components/NoticePage'
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useParams } from 'react-router-dom'
@@ -198,31 +199,31 @@ function PublicTroveContent({ troveId }: { troveId: string | undefined }) {
 
   if (state.status === 'private-invalid-link') {
     return (
-      <div className="page">
+      <NoticePage>
         <h1>This link is incomplete</h1>
         <p role="status">{PRIVATE_OPEN_FAILURE}</p>
-      </div>
+      </NoticePage>
     )
   }
 
   if (state.status === 'not-found') {
     return (
-      <div className="page">
+      <NoticePage>
         <h1>Trove not available</h1>
         <p role="status">
           This trove is not available. It may have been deleted, expired, or
           never existed.
         </p>
-      </div>
+      </NoticePage>
     )
   }
 
   if (state.status === 'error') {
     return (
-      <div className="page">
+      <NoticePage>
         <h1>Something went wrong</h1>
         <p role="alert">{state.message}</p>
-      </div>
+      </NoticePage>
     )
   }
 
@@ -486,10 +487,10 @@ function PrivateUnlock({
 
   if (parsedEnvelope === null) {
     return (
-      <div className="page">
+      <NoticePage>
         <h1>This trove could not be opened</h1>
         <p role="status">{PRIVATE_OPEN_FAILURE}</p>
-      </div>
+      </NoticePage>
     )
   }
 

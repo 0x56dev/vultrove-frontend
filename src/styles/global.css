@@ -125,7 +125,7 @@ input[type='radio'] {
 .button:hover {
   background: var(--color-accent-strong);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px -6px rgba(164, 140, 242, 0.45);
+  box-shadow: 3px 3px 0 var(--color-accent-green);
 }
 
 .button:active {
@@ -155,9 +155,9 @@ input[type='radio'] {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: var(--content-max-width);
+  max-width: 1240px;
   margin-inline: auto;
-  padding: var(--space-4) var(--space-6);
+  padding: 22px 40px;
 }
 
 .visually-hidden {
@@ -180,5 +180,67 @@ input[type='radio'] {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Functional surfaces stay fixed and readable; the visual system is cosmetic. */
+.page > h1 {
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  letter-spacing: -0.055em;
+  margin-top: 0;
+}
+.page {
+  position: relative;
+}
+.page::before {
+  content: '+';
+  position: absolute;
+  top: 12px;
+  left: 24px;
+  color: var(--color-accent-green);
+  font: 12px var(--font-mono);
+}
+.page > p {
+  color: var(--color-text-muted);
+}
+.page label,
+.page legend {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+.button {
+  min-height: 44px;
+}
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+input,
+textarea,
+select {
+  min-height: 44px;
+}
+input[type='checkbox'],
+input[type='radio'] {
+  min-height: auto;
+}
+input[type='text'],
+input[type='url'],
+input[type='password'],
+textarea,
+select {
+  border-color: var(--color-text-muted);
+}
+fieldset {
+  min-width: 0;
+}
+@media (max-width: 700px) {
+  .site-header {
+    padding: 18px 22px;
+  }
+  .page {
+    padding: 44px 22px;
   }
 }

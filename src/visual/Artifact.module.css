@@ -1,0 +1,58 @@
+.artifact {
+  border: 1px solid var(--color-accent);
+  background: var(--color-bg);
+  color: var(--color-accent-green);
+  box-shadow: 9px 9px 0 var(--color-bg-elevated);
+}
+.chrome,
+.controls,
+.caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  font: 10px/1.5 var(--font-mono);
+}
+.chrome {
+  color: var(--color-accent-contrast);
+  background: var(--color-accent);
+  letter-spacing: 0.12em;
+}
+.surface {
+  width: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+.surface:active {
+  cursor: grabbing;
+}
+.marks {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 0.6;
+  opacity: 0.5;
+}
+.controls {
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+}
+.caption {
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 11px;
+}
+.artifact button {
+  border: 0;
+  background: transparent;
+  color: var(--color-accent-green);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  min-height: 44px;
+  cursor: pointer;
+  padding: 4px;
+}
+.artifact button:hover {
+  color: var(--color-text);
+}

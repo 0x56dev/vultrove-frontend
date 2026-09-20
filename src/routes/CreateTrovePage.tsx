@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import instrument from './create-trove/CreateInstrument.module.css'
 import { createStandardTrove } from '../api/standard-troves'
 import { createPrivateTrove } from '../api/private-troves'
 import { sendTelemetryEvent } from '../api/telemetry'
@@ -209,12 +210,19 @@ export function CreateTrovePage() {
   }
 
   return (
-    <div className="page">
-      <h1>Create a trove</h1>
-      <p>
-        Bundle links into a trove, choose an expiration, and get a share link
-        plus a separate management link to edit or delete it later.
-      </p>
+    <div className={instrument.page}>
+      <header className={instrument.pageHeader}>
+        <div>
+          <p className={instrument.eyebrow}>Vultrove / Link assembly</p>
+          <h1>
+            Create a <span>trove</span>
+          </h1>
+        </div>
+        <p className={instrument.introduction}>
+          Bundle links into a trove, choose an expiration, and get a share link
+          plus a separate management link to edit or delete it later.
+        </p>
+      </header>
       <TroveForm
         formMode="create"
         initialValues={initialValues}

@@ -43,3 +43,9 @@
   gap: var(--space-3);
   margin-top: var(--space-8);
 }
+.urlInput {
+  min-width: 0;
+}
+.actions {
+  flex-wrap: wrap;
+}
