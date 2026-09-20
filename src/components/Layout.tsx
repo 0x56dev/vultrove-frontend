@@ -1,4 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
+import { FoxSigil } from '../visual/IdentityMarks'
 import { Logo } from './Logo'
 import styles from './Layout.module.css'
 
@@ -13,6 +14,9 @@ export function Layout() {
           <Link to="/" aria-label="vultrove home">
             <Logo />
           </Link>
+          <span className={styles.headerNote}>
+            LINKS, INTERLINKED <FoxSigil />
+          </span>
         </div>
       </header>
       <main id="main-content">

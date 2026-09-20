@@ -13,6 +13,8 @@ import {
   validateForm,
 } from './validation'
 import styles from './TroveForm.module.css'
+import instrument from './CreateInstrument.module.css'
+import { DraftSummary } from './DraftSummary'
 
 function formatExpiresAt(expiresAt: Date | null): string {
   if (expiresAt === null) {
@@ -207,8 +209,8 @@ export function TroveForm({
   const linkCountAtMax = values.links.length >= MAX_LINKS
   const linkCountAtMin = values.links.length <= MIN_LINKS
 
-  return (
-    <form className={styles.form} onSubmit={handleSubmit} noValidate>
+  const modeControl = (
+    <>
       {formMode === 'create' ? (
         <fieldset className={styles.fieldset}>
           <legend>Trove type</legend>
@@ -248,7 +250,11 @@ export function TroveForm({
           </div>
         </fieldset>
       ) : null}
+    </>
+  )
 
+  const contentControls = (
+    <>
       <div className={styles.field}>
         <label htmlFor="trove-title">Title</label>
         <input
@@ -287,7 +293,11 @@ export function TroveForm({
           </p>
         ) : null}
       </div>
+    </>
+  )
 
+  const linkControls = (
+    <>
       <fieldset className={styles.fieldset}>
         <legend>
           Links ({values.links.length}/{MAX_LINKS})
@@ -296,6 +306,7 @@ export function TroveForm({
           {values.links.map((link, index) => (
             <LinkRow
               key={link.id}
+              instrumentLayout={formMode === 'create'}
               link={link}
               index={index}
               urlError={errors.links[link.id]?.url}
@@ -325,7 +336,11 @@ export function TroveForm({
           </p>
         ) : null}
       </fieldset>
+    </>
+  )
 
+  const expirationControl = (
+    <>
       <div className={styles.field}>
         <label htmlFor="trove-expiration">Expiration</label>
         <select
@@ -345,7 +360,11 @@ export function TroveForm({
           ))}
         </select>
       </div>
+    </>
+  )
 
+  const passwordControls = (
+    <>
       <fieldset className={styles.fieldset}>
         <legend>Password protection</legend>
         <label className={styles.checkboxRow}>
@@ -404,14 +423,22 @@ export function TroveForm({
           </div>
         ) : null}
       </fieldset>
+    </>
+  )
 
+  const editNote = (
+    <>
       {formMode === 'edit' && values.mode === 'private' ? (
         <p className={styles.fieldHint} role="note">
           Saving any change re-encrypts this trove with a fresh key and a new
           share link. The current share link will stop working.
         </p>
       ) : null}
+    </>
+  )
 
+  const submissionControls = (
+    <>
       <div className={styles.actions}>
         <button
           type="submit"
@@ -434,6 +461,107 @@ export function TroveForm({
           {submitError}
         </p>
       ) : null}
+    </>
+  )
+
+  if (formMode === 'edit') {
+    return (
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        {modeControl}
+        {contentControls}
+        {linkControls}
+        {expirationControl}
+        {passwordControls}
+        {editNote}
+        {submissionControls}
+      </form>
+    )
+  }
+
+  return (
+    <form className={instrument.form} onSubmit={handleSubmit} noValidate>
+      <section className={instrument.content} aria-labelledby="content-heading">
+        <div className={instrument.sectionHead}>
+          <span aria-hidden="true">01 /</span>
+          <h2 id="content-heading">Content</h2>
+          <span className={instrument.asideLabel}>Give it a name.</span>
+        </div>
+        <div className={instrument.contentControls}>{contentControls}</div>
+      </section>
+      <section className={instrument.links} aria-labelledby="links-heading">
+        <div className={instrument.linkHead}>
+          <div className={instrument.sectionHead}>
+            <span aria-hidden="true">02 /</span>
+            <h2 id="links-heading">Links</h2>
+          </div>
+          <span className={instrument.linkCount}>
+            {String(values.links.length).padStart(2, '0')} / {MAX_LINKS}
+          </span>
+        </div>
+        <p className={instrument.sectionNote}>
+          Separate destinations. One shared place.
+        </p>
+        {linkControls}
+      </section>
+      <section className={instrument.privacy} aria-labelledby="privacy-heading">
+        <div className={instrument.sectionHead}>
+          <span aria-hidden="true">03 /</span>
+          <h2 id="privacy-heading">Privacy</h2>
+          <span className={instrument.asideLabel}>
+            Choose how it is shared.
+          </span>
+        </div>
+        {modeControl}
+        {passwordControls}
+      </section>
+      <section
+        className={instrument.expiration}
+        aria-label="Expiration settings"
+      >
+        <div className={instrument.sectionHead}>
+          <span aria-hidden="true">04 /</span>
+          <h2 id="expiration-heading">Expiration</h2>
+        </div>
+        <p className={instrument.expiryType}>
+          A little while.
+          <br />
+          <span>Or longer.</span>
+        </p>
+        {expirationControl}
+        <p className={instrument.sectionNote}>
+          Choose how long this trove stays available.
+        </p>
+      </section>
+      <DraftSummary
+        title={values.title}
+        linkCount={values.links.length}
+        mode={values.mode}
+        passwordEnabled={values.passwordEnabled}
+        expiration={values.expiration}
+      />
+      <section
+        className={instrument.creation}
+        aria-labelledby="creation-heading"
+      >
+        <div>
+          <div className={instrument.sectionHead}>
+            <span aria-hidden="true">05 /</span>
+            <h2 id="creation-heading">Creation</h2>
+          </div>
+          <p className={instrument.creationTitle}>
+            Many links.
+            <br />
+            <span>One trove.</span>
+          </p>
+        </div>
+        <div className={instrument.commit}>
+          <p>
+            You’ll receive a share link and a separate management link. Save the
+            management link to edit or delete your trove later.
+          </p>
+          {submissionControls}
+        </div>
+      </section>
     </form>
   )
 }

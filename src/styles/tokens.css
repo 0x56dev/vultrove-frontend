@@ -46,8 +46,8 @@
   --space-16: 4rem;
 
   /* Shape */
-  --radius-sm: 6px;
-  --radius-md: 10px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
 
   /* Layout */
   --content-max-width: 40rem;

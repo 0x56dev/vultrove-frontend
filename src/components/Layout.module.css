@@ -35,3 +35,26 @@
   color: inherit;
   text-decoration: underline;
 }
+
+.headerNote {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font: 9px var(--font-mono);
+  letter-spacing: 0.1em;
+  color: var(--color-accent-green);
+}
+.footer {
+  margin-top: 48px;
+  padding: 28px 24px;
+}
+.footer p {
+  max-width: 1160px;
+  font: 11px/1.8 var(--font-mono);
+}
+@media (max-width: 380px) {
+  .headerNote {
+    font-size: 8px;
+    gap: 8px;
+  }
+}

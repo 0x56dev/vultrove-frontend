@@ -1,8 +1,10 @@
 import type { LinkEntry } from './types'
 import { MAX_LABEL_LENGTH, MAX_URL_LENGTH } from './validation'
 import styles from './TroveForm.module.css'
+import instrument from './CreateInstrument.module.css'
 
 interface LinkRowProps {
+  instrumentLayout?: boolean
   link: LinkEntry
   index: number
   urlError?: string
@@ -18,6 +20,7 @@ interface LinkRowProps {
 }
 
 export function LinkRow({
+  instrumentLayout = false,
   link,
   index,
   urlError,
@@ -39,7 +42,12 @@ export function LinkRow({
   const displayLabelError = showLabelError ? labelError : undefined
 
   return (
-    <div className={styles.linkRow}>
+    <div className={instrumentLayout ? instrument.linkRow : styles.linkRow}>
+      {instrumentLayout ? (
+        <span className={instrument.linkIndex} aria-hidden="true">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+      ) : null}
       <div className={styles.field}>
         <label htmlFor={urlFieldId}>Link {index + 1} URL</label>
         <input
