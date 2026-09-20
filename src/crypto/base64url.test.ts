@@ -30,6 +30,26 @@ describe('base64UrlEncode/base64UrlDecode', () => {
     expect(base64UrlDecode('has=pad')).toBeNull()
   })
 
+  it('rejects non-canonical encodings with non-zero unused padding bits', () => {
+    const alphabet =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
+    // Each length exercises a different remainder: 1 byte leaves 4 unused
+    // bits in the final character, 2 bytes leave 2, and 32 bytes leave 2.
+    for (const length of [1, 2, 32]) {
+      const original = new Uint8Array(length).fill(0xff)
+      const canonical = base64UrlEncode(original)
+      const unusedBits = length % 3 === 1 ? 4 : 2
+      const finalIndex = alphabet.indexOf(canonical.at(-1)!)
+      expect(finalIndex % (1 << unusedBits)).toBe(0)
+
+      for (let alias = 1; alias < 1 << unusedBits; alias++) {
+        const aliased = canonical.slice(0, -1) + alphabet[finalIndex + alias]
+        expect(base64UrlDecode(aliased)).toBeNull()
+      }
+      expect(base64UrlDecode(canonical)).toEqual(original)
+    }
+  })
+
   it('decodes an empty string to an empty array', () => {
     const decoded = base64UrlDecode('')
     expect(decoded).not.toBeNull()

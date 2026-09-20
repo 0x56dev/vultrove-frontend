@@ -43,5 +43,9 @@ export function base64UrlDecode(text: string): Uint8Array<ArrayBuffer> | null {
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i)
   }
-  return bytes
+  // `atob` accepts non-zero unused padding bits, which gives some byte
+  // strings multiple textual aliases. Credentials and identifiers must have
+  // exactly one representation, so accept only the encoder's canonical
+  // unpadded base64url spelling.
+  return base64UrlEncode(bytes) === text ? bytes : null
 }
