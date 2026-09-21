@@ -6,6 +6,7 @@ import sitemap from '../../public/sitemap.xml?raw'
 import initialHtml from '../../index.html?raw'
 import { RouteMetadata } from './RouteMetadata'
 import {
+  GENERIC_NOINDEX_SHELL_METADATA,
   INDEX_ROBOTS_DIRECTIVE,
   NOINDEX_ROBOTS_DIRECTIVE,
   PUBLIC_ROUTE_METADATA,
@@ -74,6 +75,15 @@ describe('indexing policy', () => {
     expect(document.head.querySelector('link[rel="canonical"]')).toBeNull()
     expect(document.head.querySelector('meta[property^="og:"]')).toBeNull()
     expect(document.head.querySelector('meta[name="description"]')).toBeNull()
+  })
+
+  it('gives the generic noindex shell a neutral title, not a not-found title', () => {
+    expect(GENERIC_NOINDEX_SHELL_METADATA.title).toBe('vultrove')
+    expect(GENERIC_NOINDEX_SHELL_METADATA.robots).toBe(NOINDEX_ROBOTS_DIRECTIVE)
+    expect(GENERIC_NOINDEX_SHELL_METADATA.description).toBeUndefined()
+    expect(GENERIC_NOINDEX_SHELL_METADATA.canonicalPath).toBeUndefined()
+    // The client-side not-found route keeps its own title after hydration.
+    expect(getRouteMetadata('/unknown').title).toBe('Page not found | vultrove')
   })
 
   it('keeps user-controlled route values out of metadata', () => {

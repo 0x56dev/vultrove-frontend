@@ -35,7 +35,9 @@ The build emits four HTML shells:
 - `index.html` for `/`;
 - `_indexing/create.html` for `/create`;
 - `_indexing/privacy-telemetry.html` for `/privacy-telemetry`;
-- `_indexing/noindex.html` for trove, management, and 404 routes.
+- `_indexing/noindex.html` for trove, management, and 404 routes. Its initial
+  `<title>` is the neutral `vultrove` because the one shell serves all of
+  those routes; React sets the route-specific title after hydration.
 
 These are metadata-specific SPA shells, not prerendered page content. All use
 the same React bundle. This gives crawlers and link unfurlers correct metadata

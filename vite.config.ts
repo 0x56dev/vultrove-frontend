@@ -5,9 +5,11 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, configDefaults } from 'vitest/config'
 import { resolveDevApiTarget } from './vite.dev-proxy.ts'
 import {
+  GENERIC_NOINDEX_SHELL_METADATA,
   NOINDEX_ROBOTS_DIRECTIVE,
   canonicalUrl,
   getRouteMetadata,
+  type RouteMetadata,
 } from './src/indexing/metadata.ts'
 
 /**
@@ -84,8 +86,7 @@ function escapeHtml(value: string): string {
     .replaceAll('>', '&gt;')
 }
 
-function routeMetadataMarkup(pathname: string): string {
-  const metadata = getRouteMetadata(pathname)
+function routeMetadataMarkup(metadata: RouteMetadata): string {
   const canonical = canonicalUrl(metadata)
   const tags = ['<!-- vultrove-route-metadata:start -->']
 
@@ -194,19 +195,20 @@ function indexingShellsPlugin(): Plugin {
       }
 
       const shells = {
-        '_indexing/create.html': '/create',
-        '_indexing/privacy-telemetry.html': '/privacy-telemetry',
-        '_indexing/noindex.html': '/__not-an-indexable-route__',
+        '_indexing/create.html': getRouteMetadata('/create'),
+        '_indexing/privacy-telemetry.html':
+          getRouteMetadata('/privacy-telemetry'),
+        '_indexing/noindex.html': GENERIC_NOINDEX_SHELL_METADATA,
       } as const
 
       await mkdir(resolve(outDir, '_indexing'), { recursive: true })
       await Promise.all(
-        Object.entries(shells).map(([fileName, pathname]) =>
+        Object.entries(shells).map(([fileName, metadata]) =>
           writeFile(
             resolve(outDir, fileName),
             source.replace(
               ROUTE_METADATA_PATTERN,
-              routeMetadataMarkup(pathname),
+              routeMetadataMarkup(metadata),
             ),
           ),
         ),

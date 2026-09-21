@@ -57,6 +57,17 @@ const NOT_FOUND_ROUTE_METADATA: RouteMetadata = {
   openGraph: false,
 }
 
+// Document title for the generic noindex HTML shell only
+// (_indexing/noindex.html), which the web server returns for /c/:id, /m/:id
+// and unknown routes before React runs. It must stay neutral: the shell is
+// shared by all of those, so it cannot know which one it is serving. React's
+// RouteMetadata sets the route-specific title after hydration.
+export const GENERIC_NOINDEX_SHELL_METADATA: RouteMetadata = {
+  title: 'vultrove',
+  robots: NOINDEX_ROBOTS_DIRECTIVE,
+  openGraph: false,
+}
+
 function normalizePathname(pathname: string): string {
   if (pathname.length > 1 && pathname.endsWith('/')) {
     return pathname.slice(0, -1)
